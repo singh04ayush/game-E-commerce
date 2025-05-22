@@ -7,7 +7,7 @@ import List from './pages/List'
 import Orders from './pages/Orders'
 import Login from './components/Login'
 import { ToastContainer } from 'react-toastify';
-import AdminHero from './components/adminHero'
+import AdminHero from './components/AdminHero'
 import { useLocation } from 'react-router-dom'
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
