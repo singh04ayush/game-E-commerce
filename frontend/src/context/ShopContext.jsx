@@ -8,7 +8,7 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
 
     const currency = "€";
-    const platform_fee = 10;
+    const platform_fee = 0;
     const backendUrl = import.meta.env.VITE_BACKEND_URL
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false);
@@ -39,12 +39,14 @@ const ShopContextProvider = (props) => {
         }
 
         setCartItems(cartData);
+        
+        // Show success message when product is added
+        const productName = products.find(product => product._id === itemId)?.name || 'Product';
+        toast.success(`${productName} Added to Cart`);
 
         if (token) {
             try {
-
                 await axios.post(backendUrl + '/api/cart/add', { itemId, platform }, { headers: { token } });
-
             } catch (error) {
                 console.log(error);
                 toast.error(error.message);
