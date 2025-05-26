@@ -3,10 +3,11 @@ import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
 import CartTotal from '../components/CartTotal';
+import Loader from '../components/Loader';
 
 const Cart = () => {
 
-  const { products, currency, cartItems, updateQuantity, navigate, token } = useContext(ShopContext);
+  const { products, currency, cartItems, updateQuantity, navigate, token, loading } = useContext(ShopContext);
 
   const [cartData, setCartData] = useState([]);
 
@@ -30,12 +31,18 @@ const Cart = () => {
 
   }, [cartItems,products])
 
+  if (loading) {
+    return <Loader fullScreen={true} />;
+  }
+
   return (
     <div className='border-t pt-14'>
 
-      <div className='text-2xl mb-3'>
-        <Title text1={'YOUR'} text2={'CART'} />
-      </div>
+      {cartData.length > 0 && (
+        <div className='text-2xl mb-3'>
+          <Title text1={'YOUR'} text2={'CART'} />
+        </div>
+      )}
 
       <div>
         {cartData.length > 0 ? (
@@ -60,7 +67,7 @@ const Cart = () => {
             )
           })
         ) : (
-          <div className="py-20 flex flex-col items-center justify-center border-t border-b">
+          <div className="py-20 flex flex-col items-center justify-center">
             <img src={assets.cart_icon} className="w-16 h-16 opacity-30 mb-4" alt="Empty cart" />
             <h2 className="text-2xl font-medium text-gray-700 mb-2">Your Cart is Empty</h2>
             <p className="text-gray-500 mb-6">Add some games to your cart and come back!</p>

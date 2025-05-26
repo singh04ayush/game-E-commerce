@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
 
 const Login = () => {
 
   const [currentState, setCurrentState] = useState('Login');
-  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+  const { token, setToken, navigate, backendUrl, loading, setLoading } = useContext(ShopContext);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ const Login = () => {
   const onSubmitHandler = async (event) => { 
     event.preventDefault();
     try {
-
+      setLoading(true);
       if (currentState === 'Signup') {
 
         const response = await axios.post(backendUrl + '/api/user/register', { name, email, password });
@@ -39,9 +40,11 @@ const Login = () => {
         }
 
       }
+      setLoading(false);
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+      setLoading(false);
     }
   }
 
@@ -50,6 +53,10 @@ const Login = () => {
       navigate('/')
     }
   },[token])
+
+  if (loading) {
+    return <Loader fullScreen={true} />
+  }
 
   return (
     <form onSubmit={onSubmitHandler} className='flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800'>

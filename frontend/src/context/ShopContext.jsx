@@ -15,6 +15,7 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const addToCart = async (itemId, platform) => {
@@ -46,10 +47,13 @@ const ShopContextProvider = (props) => {
 
         if (token) {
             try {
+                setLoading(true);
                 await axios.post(backendUrl + '/api/cart/add', { itemId, platform }, { headers: { token } });
+                setLoading(false);
             } catch (error) {
                 console.log(error);
                 toast.error(error.message);
+                setLoading(false);
             }
         }
 
@@ -80,11 +84,13 @@ const ShopContextProvider = (props) => {
 
         if (token) {
             try {
+                setLoading(true);
                 await axios.post(backendUrl + '/api/cart/update', { itemId, platform, quantity }, { headers: { token } });
-
+                setLoading(false);
             } catch (error) {
                 console.log(error);
                 toast.error(error.message);
+                setLoading(false);
             }
         }
 
@@ -111,28 +117,34 @@ const ShopContextProvider = (props) => {
 
     const getProductsData = async () => {
         try {
+            setLoading(true);
             const response = await axios.get(backendUrl + '/api/product/list');
             if (response.data.success) {
                 setProducts(response.data.products);
             } else {
                 toast.error(response.data.message);
             }
+            setLoading(false);
         } catch (error) {
             console.log(error);
             toast.error(error.message);
+            setLoading(false);
         }
     }
 
     const getUserCart = async (token) => {
         try {
+            setLoading(true);
             const response = await axios.post(backendUrl + '/api/cart/get', {}, { headers: { token } });
 
             if (response.data.success) {
                 setCartItems(response.data.cartData);
             }
+            setLoading(false);
         } catch (error) {
             console.log(error);
             toast.error(error.message);
+            setLoading(false);
         }
     }
 
@@ -159,7 +171,8 @@ const ShopContextProvider = (props) => {
     const value = {
         products, currency, platform_fee,
         search, setSearch, showSearch, setShowSearch, cartItems, setCartItems, addToCart,
-        getCartCount, updateQuantity, getCartAmount, navigate, backendUrl, token, setToken
+        getCartCount, updateQuantity, getCartAmount, navigate, backendUrl, token, setToken,
+        loading, setLoading
     }
 
     return (

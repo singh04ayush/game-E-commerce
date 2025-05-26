@@ -3,10 +3,11 @@ import { ShopContext } from '../context/ShopContext'
 import { assets } from '../assets/assets';
 import Title from '../components/Title';
 import ProductItem from '../components/ProductItem';
+import Loader from '../components/Loader';
 
 const Collection = () => {
 
-  const { products, search, showSearch } = useContext(ShopContext);
+  const { products, search, showSearch, loading } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -144,13 +145,17 @@ const Collection = () => {
           </select>
         </div>
 
-        <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
-          {
-            filterProducts.map((item, index)=>(
-              <ProductItem key={index} id={item._id} name={item.name} image={item.image} price={item.price} />
-            ))
-          }
-        </div>
+        {loading ? (
+          <Loader />
+        ) : (
+          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>
+            {
+              filterProducts.map((item, index)=>(
+                <ProductItem key={index} id={item._id} name={item.name} image={item.image} price={item.price} />
+              ))
+            }
+          </div>
+        )}
 
       </div>
 
