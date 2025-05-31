@@ -1,13 +1,37 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { assets } from '../assets/assets.js'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext.jsx'
 
 const Navbar = () => {
 
     const [visible, setVisible] = useState(false)
+    const [showSearchIcon, setShowSearchIcon] = useState(false)
+    const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+    const location = useLocation()
+    const profileDropdownRef = useRef(null)
 
     const { setShowSearch, getCartCount, navigate, token, setToken, setCartItems } = useContext(ShopContext);
+
+    useEffect(() => {
+        // Only show search icon on collection page
+        setShowSearchIcon(location.pathname.includes('collection'))
+        
+        // Close profile dropdown when clicking outside
+        const handleClickOutside = (event) => {
+            if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+                setShowProfileDropdown(false)
+            }
+        }
+        
+        document.addEventListener('mousedown', handleClickOutside)
+        document.addEventListener('touchstart', handleClickOutside)
+        
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+            document.removeEventListener('touchstart', handleClickOutside)
+        }
+    }, [location])
 
     const logout = () => {
         navigate('/login');
@@ -45,30 +69,46 @@ const Navbar = () => {
 
             </ul>
 
-            <div className='flex items-center gap-6'>
+            <div className='flex items-center gap-3 sm:gap-6'>
 
-                <img onClick={() => setShowSearch(true)} src={assets.search_icon} className='w-5 cursor-pointer' alt="" />
+                {showSearchIcon && (
+                    <img onClick={() => setShowSearch(true)} src={assets.search_icon} className='w-5 cursor-pointer' alt="Search" />
+                )}
 
-                <div className='group relative'>
-                    <img onClick={() => token ? null : navigate('/login')} src={assets.profile_icon} className='w-5 cursor-pointer' alt="" />
-                    {/* drop down */}
-                    { token && 
-                        <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
-                            <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
-                                <p onClick={()=> navigate('/profile')} className='cursor-pointer hover:text-black'>My Profile</p>
-                                <p onClick={()=> navigate('/orders')} className='cursor-pointer hover:text-black'>Orders</p>
-                                <p onClick={logout} className='cursor-pointer hover:text-black'>Logout</p>
+                <div className='relative' ref={profileDropdownRef}>
+                    <img 
+                        onClick={() => token ? setShowProfileDropdown(!showProfileDropdown) : navigate('/login')} 
+                        src={assets.profile_icon} 
+                        className='w-5 cursor-pointer' 
+                        alt="Profile" 
+                    />
+                    {/* drop down - now using state instead of hover */}
+                    { token && showProfileDropdown && 
+                        <div className='absolute dropdown-menu right-0 pt-4 z-10'>
+                            <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow-md'>
+                                <p onClick={()=> {
+                                    navigate('/profile')
+                                    setShowProfileDropdown(false)
+                                }} className='cursor-pointer hover:text-black'>My Profile</p>
+                                <p onClick={()=> {
+                                    navigate('/orders')
+                                    setShowProfileDropdown(false)
+                                }} className='cursor-pointer hover:text-black'>Orders</p>
+                                <p onClick={() => {
+                                    logout()
+                                    setShowProfileDropdown(false)
+                                }} className='cursor-pointer hover:text-black'>Logout</p>
                             </div>
                         </div>
                     }
                 </div>
 
                 <Link to='/cart' className='relative'>
-                    <img src={assets.cart_icon} className='w-5 min-w-5' alt="" />
+                    <img src={assets.cart_icon} className='w-5 min-w-5' alt="Cart" />
                     <p className='absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]'>{getCartCount()}</p>
                 </Link>
 
-                <img onClick={() => setVisible(true)} src={assets.menu_icon} className='w-5 cursor-pointer sm:hidden' alt="" />
+                <img onClick={() => setVisible(true)} src={assets.menu_icon} className='w-5 cursor-pointer sm:hidden ml-1' alt="Menu" />
 
             </div>
 
